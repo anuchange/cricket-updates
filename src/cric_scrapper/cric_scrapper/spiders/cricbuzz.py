@@ -1,8 +1,10 @@
 import scrapy
-from pathlib import Path
 import os
 import json
-from pprint import pprint
+import sys
+sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
+from mongo_script import insert_to_db
+
 
 class CricbuzzSpider(scrapy.Spider):
     name = "cricbuzz"
@@ -11,12 +13,14 @@ class CricbuzzSpider(scrapy.Spider):
     latest_news_complete_data = {}
     match_details = {}
 
+
     def start_requests(self):
         urls = [
             "https://cricbuzz.com"
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
+
 
     def parse(self, response):
         page = response.url.split("/")[-2].split('.')[-2]
@@ -34,8 +38,6 @@ class CricbuzzSpider(scrapy.Spider):
         for latest_news_title in latest_news_data.keys():
             yield scrapy.Request(latest_news_data[latest_news_title], callback=self.parse_news, meta={ 'title_name': latest_news_title})
 
-        print("--------------------------------------")
-
         # fetching cricket matches
         cricket_matches_data = {}
         for match in response.css('li.cb-lst-mtch.cb-lst-dom'):
@@ -49,17 +51,10 @@ class CricbuzzSpider(scrapy.Spider):
             match_url = response.url[:-1] + match.css('a::attr(href)').get()
             cricket_matches_data[match_title] = match_url
 
-        print("--------------------------------------")
-
         # Fetch responses for additional URLs and pass additional variables
         for cricket_matches_title in cricket_matches_data.keys():
             yield scrapy.Request(cricket_matches_data[cricket_matches_title], callback=self.parse_match_data, meta={ 'title_name': cricket_matches_title})
-    
-        # Saving data
-        # self.save_data()
-        # filename = f"{data_dir}_latest_news.html"
-        # Path(filename).write_bytes(a)
-        # self.log(f"Saved file {filename}")
+
 
     def parse_news(self, response):
 
@@ -97,10 +92,6 @@ class CricbuzzSpider(scrapy.Spider):
                 'Date & Time': date_time,
             }
 
-            # print("--------------------------------------")
-            # print(match_details)
-            # print("--------------------------------------")
-
             # Extracting Bowling Team Score, Batting Team Score, Match Status, Player of the Match and Series
             mini_score_bowling = response.css('div.cb-min-tm.cb-text-gray::text').get()
             mini_score_batting = response.css('div.cb-min-tm:not(.cb-text-gray)::text').get()
@@ -127,9 +118,6 @@ class CricbuzzSpider(scrapy.Spider):
 
             # Complete match details
             match_summary = match_details | match_scores
-            # print("--------------------------------------")
-            # print(match_summary)
-            # print("--------------------------------------")
 
             # Adding in the complete latest news dictionary
             match_title = response.meta.get('title_name')
@@ -137,10 +125,11 @@ class CricbuzzSpider(scrapy.Spider):
 
 
         except:
-            print("Skipped ! Due to Error.")
+            self.log("Skipped ! Due to Error.")
 
-        # save data here
-        self.save_data()
+    def close(self, reason):
+            self.save_data()
+
 
     def save_data(self):
 
@@ -164,7 +153,11 @@ class CricbuzzSpider(scrapy.Spider):
         data['match_details'] = match_det
 
         # Writing JSON data
-        file_name = 'data.json'
-        data_dir = "\\".join(os.getcwd().split("\\")[:-2]) + '\\data\\' + file_name
-        with open(data_dir, 'w') as json_file:
-            json.dump(data, json_file, indent=4) 
+        # file_name = 'data.json'
+        # data_dir = "\\".join(os.getcwd().split("\\")[:-2]) + '\\data\\' + file_name
+        # with open(data_dir, 'w') as json_file:
+        #     json.dump(data, json_file, indent=4) 
+
+        # insert into db
+        inserted_id = insert_to_db(data)
+        self.log(f"Inserted into db with id:{inserted_id}")
