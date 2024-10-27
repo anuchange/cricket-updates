@@ -9,6 +9,7 @@ class CricbuzzSpider(scrapy.Spider):
     allowed_domains = ["cricbuzz.com"]
     start_urls = ["https://cricbuzz.com"]
     latest_news_complete_data = {}
+    match_details = {}
 
     def start_requests(self):
         urls = [
@@ -19,7 +20,6 @@ class CricbuzzSpider(scrapy.Spider):
 
     def parse(self, response):
         page = response.url.split("/")[-2].split('.')[-2]
-        print("--------------------------------------")
         data_dir = "\\".join(os.getcwd().split("\\")[:-2]) + '\\data\\'
 
         # collecting latest news title and urls
@@ -34,8 +34,29 @@ class CricbuzzSpider(scrapy.Spider):
         for latest_news_title in latest_news_data.keys():
             yield scrapy.Request(latest_news_data[latest_news_title], callback=self.parse_news, meta={ 'title_name': latest_news_title})
 
-        # pprint(news_page_response)
         print("--------------------------------------")
+
+        # fetching cricket matches
+        cricket_matches_data = {}
+        for match in response.css('li.cb-lst-mtch.cb-lst-dom'):
+            match_type = match.css('div.cb-mm-typ::text').get()  
+            
+            # Stop processing if match type is other than INTERNATION
+            if match_type != 'INTERNATIONAL' and match_type is not None:
+                break  
+            
+            match_title = match.css('a::attr(title)').get()
+            match_url = response.url[:-1] + match.css('a::attr(href)').get()
+            cricket_matches_data[match_title] = match_url
+
+        print("--------------------------------------")
+
+        # Fetch responses for additional URLs and pass additional variables
+        for cricket_matches_title in cricket_matches_data.keys():
+            yield scrapy.Request(cricket_matches_data[cricket_matches_title], callback=self.parse_match_data, meta={ 'title_name': cricket_matches_title})
+    
+        # Saving data
+        # self.save_data()
         # filename = f"{data_dir}_latest_news.html"
         # Path(filename).write_bytes(a)
         # self.log(f"Saved file {filename}")
@@ -53,13 +74,73 @@ class CricbuzzSpider(scrapy.Spider):
         # Adding in the complete latest news dictionary
         latest_news_title = response.meta.get('title_name')
         self.latest_news_complete_data[latest_news_title] = article_text
-        print("--------------------------------------")
-        # print(self.latest_news_complete_data)
+
+    def parse_match_data(self, response):
+
+        """Parse method for handling responses from match urls."""
+
+        self.logger.info('Processing additional response from %s', response.url)
+
+        try:
+
+            # Extracting Series, Venue and Date & Time
+            series = response.css('span.text-bold:contains("Series:") + a::attr(title)').get()
+            venue = response.css('span.text-bold.pad-left:contains("Venue:") + a::attr(title)').get()
+            date_time_parts = response.css('span[itemprop="startDate"] span::text').getall()
+            date_time_parts += response.css('span[itemprop="startDate"] span[itemprop="endDate"]::text').getall() 
+            date_time = ' '.join(part.strip() for part in date_time_parts if part.strip())
+            
+            # Creating the result dictionary
+            match_details = {
+                'Series': series,
+                'Venue': venue,
+                'Date & Time': date_time,
+            }
+
+            # print("--------------------------------------")
+            # print(match_details)
+            # print("--------------------------------------")
+
+            # Extracting Bowling Team Score, Batting Team Score, Match Status, Player of the Match and Series
+            mini_score_bowling = response.css('div.cb-min-tm.cb-text-gray::text').get()
+            mini_score_batting = response.css('div.cb-min-tm:not(.cb-text-gray)::text').get()
+            match_status = response.css('div.cb-min-stts.cb-text-complete::text').get()
+            player_of_the_match = response.css('div.cb-mom-itm:contains("PLAYER OF THE MATCH") a.cb-link-undrln::text').get()
+            player_of_the_series = response.css('div.cb-mom-itm:contains("PLAYER OF THE SERIES") a.cb-link-undrln::text').get()
+
+            # Creating the result dictionary
+            match_scores = {
+                'Mini Score Bowling': mini_score_bowling,
+                'Mini Score Batting': mini_score_batting,
+                'Match Status': match_status,
+                'Player of the Match': player_of_the_match,
+                'Player of the Series': player_of_the_series,
+            }
+
+            if None in match_scores.values():
+                if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is not None:
+                    match_scores['Player of the Series'] = "Series is not completed yet."
+
+                if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is None and match_scores['Match Status'] is None:
+                    match_scores['Match Status'] = "Match is not started yet."
+        
+
+            # Complete match details
+            match_summary = match_details | match_scores
+            # print("--------------------------------------")
+            # print(match_summary)
+            # print("--------------------------------------")
+
+            # Adding in the complete latest news dictionary
+            match_title = response.meta.get('title_name')
+            self.match_details[match_title] = match_summary
+
+
+        except:
+            print("Skipped ! Due to Error.")
+
+        # save data here
         self.save_data()
-        print("--------------------------------------")
-        # for link in links:
-        #     href = link.attrib.get('href')
-        #     title = link.attrib.get('title')
 
     def save_data(self):
 
@@ -72,6 +153,15 @@ class CricbuzzSpider(scrapy.Spider):
             latest_news.append(each_news)
         
         data['latest_news_section'] = latest_news
+
+        match_det = []
+        for match in self.match_details:
+            each_match = {}
+            each_match['title'] = match
+            each_match['summary'] = self.match_details[match]
+            match_det.append(each_match)
+        
+        data['match_details'] = match_det
 
         # Writing JSON data
         file_name = 'data.json'
