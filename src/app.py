@@ -1,9 +1,8 @@
-# app.py
 from flask import Flask, request, jsonify, send_from_directory
 import os
 from onboarding_and_emails import onboarding
 
-app = Flask(__name__, static_folder=os.getcwd() + '\\static\\')
+app = Flask(__name__, static_folder='static')
 
 @app.route('/')
 def home():
