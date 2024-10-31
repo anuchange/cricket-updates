@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Cricket Updates</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth; /* Enable smooth scrolling */
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); 
+            }
+        }
+        .fade-in {
+            opacity: 0; 
+            animation: fadeIn 0.5s forwards; 
+        } 
+        .delay-1 {
+            animation-delay: 0.3s;
+        }
+        @font-face {
+            font-family: 'CustomFont'; 
+            src: url('./files/switzer-variable.ttf') format('truetype'); 
+            font-weight: normal; 
+            font-style: normal; 
+        }
+        body {
+            font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; /* Use your custom font */
+            line-height: 1.6;
+            color: #ffff;
+            background: black;
+            min-height: 100vh;
+        }
+        .nav {
+            padding: 1rem;
+            background: rgb(0, 0, 0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section {
+            padding: 5rem 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo img {
+            height: 70px;
+            width: auto;
+        }
+        .container-large {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card-item {
+            background: #202020;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .heading {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .spacer-40 {
+            height: 2.5rem;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .text-box {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #6273ef;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .button {
+            background: #6273ef;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .button:hover {
+            background: #4b56ab;
+        }
+
+        .success-message, .error-message {
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="./files/LogoPP_bgr.png" alt="Cricket Updates Logo">
+            </a>
+        </div>
+    </nav>
+    <section class="section">
+        <div class="container-large">
+            <div class="card-item fade-in delay-1">
+                <h1 class="heading">Register your email with us</h1>
+                <div class="spacer-40"></div>
+                <form id="email-form" class="form">
+                    <div>
+                        <label class="text-box" for="email">Email address</label>
+                        <input type="email" id="email" name="email" class="input" required>
+                    </div>
+                    <button type="submit" class="button">Submit</button>
+                </form>
+                <div id="success-message" class="success-message">
+                    Thank you, your submission has been received
+                </div>
+                <div id="error-message" class="error-message">
+                    Something went wrong, please try again
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('email-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            try {
+                const response = await fetch('/api/onboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                if (response.ok) {
+                    successMessage.classList.add('show');
+                    errorMessage.classList.remove('show');
+                    document.getElementById('email-form').reset();
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Updates - Stay Connected with Cricket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: black;
+        }
+        html {
+            scroll-behavior: smooth; /* Enable smooth scrolling */
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); 
+            }
+        }
+
+        .fade-in {
+            opacity: 0; 
+            animation: fadeIn 0.5s forwards; 
+        }
+
+        
+        .delay-1 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.6s; 
+        }
+
+        .delay-3 {
+            animation-delay: 0.9s; 
+        }
+        .delay-4 {
+            animation-delay: 1.2s; 
+        }
+        @font-face {
+            font-family: 'CustomFont'; 
+            src: url('./files/switzer-variable.ttf') format('truetype'); 
+            font-weight: normal; 
+            font-style: normal; 
+        }
+        body {
+            font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; /* Use your custom font */
+            line-height: 1.6;
+            color: #ffff;
+        }
+
+        .nav {
+            padding: 1rem;
+            background: rgb(0, 0, 0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 70px;
+            width: auto;
+        }
+
+        .button {
+            background: #6273ef;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .button:hover {
+            background: #4b56ab;
+        }
+
+        .button-secondary {
+            background: transparent;
+            border: 2px solid #ffff;
+            color: #ffff;
+        }
+
+        .button-secondary:hover {
+            background: #6273ef;
+        }
+
+        .section {
+            padding: 5rem 2rem;
+        }
+
+        .container-large {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            padding-top: 4rem;
+        }
+
+        .heading {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        .custom-heading {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            background-color: #202020;
+        }
+        .text-gradient-overlay {
+            background: linear-gradient(45deg, #ffff, #6273ef);
+            background-clip: padding-box;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .spacer-32 {
+            height: 2rem;
+            background-color: #202020;
+        }
+        .customspacer-32 {
+            height: 2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hero-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card-item {
+            padding: 2rem;
+            background: rgb(31, 32, 32);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .icon-large {
+            width: 48px;
+            height: 48px;
+            background-color: #202020;
+        }
+
+        .testimonials-card {
+            background: rgb(31, 32, 32);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cta-card-content {
+            
+            background: rgb(31,32, 32);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        .text-color-custom {
+            background-color: #202020; /* Custom color */
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .text-color-muted {
+            color: #ffff;
+            background-color: #202020;
+        }
+        .custom-text-color-muted {
+            color: #ffff;
+        }
+
+        .divider-line {
+            height: 1px;
+            background: #3a3a3a;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .header-layout {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .button-group {
+                justify-content: center;
+            }
+
+            .card-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="./files/LogoPP_bgr.png" alt="Cricket Updates Logo">
+            </a>
+            <a href="./sign-in.html" class="button">Get started</a>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container-large">
+            <div class="header-layout">
+                <div class="header-content">
+                    <h1 class="heading fade-in delay-1">Unleash Your Inner Cricket Fan!</h1>
+                    <div class="customspacer-32"></div>
+                    <p class="fade-in delay-2">Cricket Updates brings the game to you effortlessly. Receive concise daily summaries of the latest news, match highlights, and key insights—perfect for busy fans who want to stay in the loop without the hassle!</p>
+                    <div class="customspacer-32"></div>
+                    <div class="button-group">
+                        <a href="./sign-in.html" class="button fade-in delay-3">Get started</a>
+                        <a href="#learn-more" class="button button-secondary fade-in delay-3">Learn more</a>
+                    </div>
+                </div>
+                <div class="image-wrapper">
+                    <img src="./files/cricket_bg.jpg" alt="Cricket" class="hero-image fade-in delay-4">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="learn-more" class="section">
+        <div class="container-large">
+            <h2 class="heading"><span class="text-gradient-overlay">Take action from insights</span></h2>
+            <div class="card-list">
+                <div class="card-item">
+                    <img src="./files/layout-dashboard.svg" alt="Dashboard icon" class="icon-large">
+                    <div class="spacer-32"></div>
+                    <h3 class="custom-heading">Time-Saving</h3>
+                    <p class="text-color-custom">Perfect for busy fans—stay informed without lengthy research</p>
+                </div>
+                <div class="card-item">
+                    <img src="./files/radar.svg" alt="Radar icon" class="icon-large">
+                    <div class="spacer-32"></div>
+                    <h3 class="custom-heading">Daily Summaries</h3>
+                    <p class="text-color-custom">Get quick updates on news, highlights, and insights in a digestible format.</p>
+                </div>
+                <div class="card-item">
+                    <img src="./files/wand-sparkles.svg" alt="Magic icon" class="icon-large">
+                    <div class="spacer-32"></div>
+                    <h3 class="custom-heading">Stay Connected</h3>
+                    <p class="text-color-custom">Keep up with the game anytime, anywhere, right in your inbox</p>
+                </div>
+                <div class="card-item">
+                    <img src="./files/mouse-pointer-click.svg" alt="Mouse icon" class="icon-large">
+                    <div class="spacer-32"></div>
+                    <h3 class="custom-heading">Expert Analysis</h3>
+                    <p class="text-color-custom">Enjoy curated insights from cricket experts for better understanding</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container-large">
+            <h2 class="heading"><span class="text-gradient-overlay">Welcome to Cricket Updates!</span></h2>
+            <div class="testimonials-card">
+                <div class="testimonials-content">
+                    <p class = text-color-custom>Dear Cricket Fans,<br><br>
+                    I'm Anurag, and I'm thrilled to welcome you to our cricket community! Here, you'll find a home for all your cricket needs—daily updates, news summaries, and insights tailored just for you.<br><br>
+                    Whether you're a die-hard fan or just starting your journey into the world of cricket, our goal is to keep you informed and engaged. We believe that every fan deserves easy access to the latest happenings in the game, and that's what we're here to deliver.<br><br>
+                    Thank you for joining us! Let's embark on this exciting journey together and celebrate our love for cricket.</p>
+                    <div class="spacer-32"></div>
+                    <div class="testimonial-details">
+                        <p class = text-color-custom><strong class="text-color-custom">Anurag Vishwakarma</strong></p>
+                        <p class="text-color-muted">Pavilion Post</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container-large">
+            <div class="cta-card-content">
+                <h2 class="custom-heading">Ready for daily cricket insights?</h2>
+                <p class="text-color-custom">Join us for your daily dose of cricket!</p>
+                <div class="spacer-32"></div>
+                <a href="./sign-in.html" class="button">Get started</a>
+            </div>
+            <div class="gradient-image">
+                <img src="./files/cricket-updates-bg.jpg" alt="Cricket background">
+            </div>
+        </div>
+    </section>
+
+    <footer class="section">
+        <div class="container-large">
+            <div class="divider-line"></div>
+            <div class="footer-bottom">
+                <a href="/" class="logo">
+                    <img src="./files/LogoPP_bgr.png" alt="Cricket Updates Logo" height="58">
+                </a>
+                <p class="custom-text-color-muted">© Pavilion Post 2024</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

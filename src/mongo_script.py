@@ -12,6 +12,16 @@ client = MongoClient(f"mongodb+srv://{user}:{password}@cluster0.tbqu5.mongodb.ne
 
 db = client.cricket_updates
 def insert_to_db(day_updates):
+
+    # Delete all existing collections in the database by retrieving all existing collection names
+    existing_collections = db.list_collection_names()
+    if existing_collections:
+        for collection_name in existing_collections:
+            db.drop_collection(collection_name)
+            logging.info(f"Deleted existing collection: {collection_name}")
+    else:
+        logging.info("No existing collections to delete.")
+
     collection = db[str(datetime.date.today())]
     inserted = collection.insert_one(day_updates)
     logging.info("------------------------------")
@@ -30,6 +40,16 @@ def retrieve_from_db(collection_name):
 
 summary_db = client.cricket_summaries
 def insert_to_summary_db(day_updates):
+
+    # Delete all existing collections in the database by retrieving all existing collection names
+    existing_collections = summary_db.list_collection_names()
+    if existing_collections:
+        for collection_name in existing_collections:
+            db.drop_collection(collection_name)
+            logging.info(f"Deleted existing collection: {collection_name}")
+    else:
+        logging.info("No existing collections to delete.")
+
     collection = summary_db[str(datetime.date.today())]
     inserted = collection.insert_one(day_updates)
     logging.info("------------------------------")
