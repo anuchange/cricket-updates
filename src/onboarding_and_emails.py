@@ -29,6 +29,8 @@ def send_emails():
     # send email to all users
     es.existing_users_send_emails(email_list)
 
+    #print for terminal
+    print("-------EMAILS SENT SUCCESSFULLY-------")
     logging.info("--------------------------------------")
     logging.info("-------EMAILS SENT SUCCESSFULLY-------")
     logging.info("--------------------------------------")

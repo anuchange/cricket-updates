@@ -6,6 +6,7 @@ import mongo_script
 import datetime
 import logging
 import json
+from time import sleep
 
 # Set your GROQ API key
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
@@ -39,11 +40,12 @@ class llm_call:
         for latest_news in news_list:
             summary = {}
             news_title = latest_news['title']
-            news = latest_news['update']
-            message = f"Your role is a 'Summarization Machine', which will summarize text in 50-60 words, keeping all important points. Given news of the cricket: {news}"
+            news = latest_news['news']
+            message = f"Your role is a 'Summarization Machine', which will summarize text in 50-60 words, keeping all important points. Given news of the cricket: {news}. If there is no news, then summary can be we don't have news but will keep you posted."
             news_summary = self.response_generation(message)
             summary[news_title] = news_summary
             news_summaries.append(summary)
+            sleep(6) 
 
         return news_summaries
 
@@ -53,18 +55,19 @@ class llm_call:
         for scores_details in score_list:
             score_summary = {}
             score_title = scores_details['title']
-            match_summary = scores_details['update']
+            match_summary = scores_details['summary']
             message = f"Your role is a 'Cricket Match Updater', which will write match details in 20-30 words, keeping all important points. Given match summary: {match_summary} of the cricket match"
             news_summary = self.response_generation(message)
             score_summary[score_title] = news_summary
             match_summaries.append(score_summary)
+            sleep(6) 
 
         return match_summaries
 
     def cricket_content(self):
 
-        # date_today = str(datetime.date.today())
-        date_today = '2024-10-28'
+        date_today = str(datetime.date.today())
+        # date_today = '2024-10-28'
         try:
             data_retrieved = mongo_script.retrieve_from_db(date_today)
         except Exception as e:

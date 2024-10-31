@@ -173,12 +173,12 @@
             <div class="card-item fade-in delay-1">
                 <h1 class="heading">Register your email with us</h1>
                 <div class="spacer-40"></div>
-                <form id="email-form" class="form">
+                <form id="email-form" class="form" onsubmit="handleSubmit(event)">
                     <div>
                         <label class="text-box" for="email">Email address</label>
                         <input type="email" id="email" name="email" class="input" required>
                     </div>
-                    <button type="submit" class="button">Submit</button>
+                    <button type="submit" class="button" id="submit-button">Submit</button>
                 </form>
                 <div id="success-message" class="success-message">
                     Thank you, your submission has been received
@@ -195,8 +195,11 @@
             e.preventDefault();
             
             const email = document.getElementById('email').value;
+            const submitButton = document.getElementById('submit-button');
             const successMessage = document.getElementById('success-message');
             const errorMessage = document.getElementById('error-message');
+            submitButton.textContent = 'Please wait...';
+            submitButton.disabled = true; 
 
             try {
                 const response = await fetch('/api/onboard', {
@@ -218,6 +221,8 @@
                 errorMessage.classList.add('show');
                 successMessage.classList.remove('show');
             }
+            submitButton.textContent = 'Submit';
+            submitButton.disabled = false;
         });
     </script>
 </body>

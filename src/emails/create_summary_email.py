@@ -8,8 +8,8 @@ import datetime
 
 def create_email():
 
-    # date_today = str(datetime.date.today())
-    date_today = '2024-10-29'
+    date_today = str(datetime.date.today())
+    # date_today = '2024-10-29'
     try:
         json_data = mongo_script.retrieve_from_summary_db(date_today)
     except Exception as e:
