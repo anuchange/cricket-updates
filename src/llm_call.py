@@ -2,7 +2,7 @@ import os
 from groq import Groq
 import sys
 sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
-import mongo_script
+from . import mongo_script as ms
 import datetime
 import logging
 import json
@@ -45,7 +45,7 @@ class llm_call:
             news_summary = self.response_generation(message)
             summary[news_title] = news_summary
             news_summaries.append(summary)
-            sleep(6) 
+            # sleep(2) 
 
         return news_summaries
 
@@ -60,7 +60,7 @@ class llm_call:
             news_summary = self.response_generation(message)
             score_summary[score_title] = news_summary
             match_summaries.append(score_summary)
-            sleep(6) 
+            # sleep(2) 
 
         return match_summaries
 
@@ -69,7 +69,7 @@ class llm_call:
         date_today = str(datetime.date.today())
         # date_today = '2024-10-28'
         try:
-            data_retrieved = mongo_script.retrieve_from_db(date_today)
+            data_retrieved = ms.retrieve_from_db(date_today)
         except Exception as e:
             logging.info("Data is not scrapped properly.")
             logging.info(f"Error: {e}")
@@ -88,7 +88,7 @@ class llm_call:
         data['match_details'] = match_summaries
 
         try:
-            inserted_id = mongo_script.insert_to_summary_db(data)
+            inserted_id = ms.insert_to_summary_db(data)
             logging.info(f"Inserted into db with id:{inserted_id}")
         except Exception as e:
             logging.info("Problem inserting data into MongoDB")

@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
 import subprocess
-from onboarding_and_emails import send_emails, onboarding
-from llm_call import llm_call
+from src.onboarding_and_emails import send_emails, onboarding
+from src.llm_call import llm_call
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
@@ -22,7 +22,6 @@ def handle_onboard():
     try:
         data = request.get_json()
         email = data.get('email')
-        
         if not email:
             return jsonify({'error': 'Email is required'}), 400
 
@@ -38,7 +37,7 @@ def handle_onboard():
 # Handling scrapy automatic run
 def run_scrapy():
     try:
-        os.chdir('./cric_scrapper')
+        os.chdir('./src/cric_scrapper')
         subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scrapy job completed successfully.")
     except subprocess.CalledProcessError as e:
@@ -48,8 +47,8 @@ def run_scrapy():
 scheduler = BackgroundScheduler()
 
 try:
-    hr = 3
-    mnt = 4
+    hr = 17
+    mnt = 0
     # Scheduling the scrapy job to run every day
     scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
     scheduler.add_job(run_scrapy, scrapy_trigger)
@@ -71,4 +70,6 @@ except:
 scheduler.start()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # Use PORT environment variable or default to 5000 for local development
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False) 

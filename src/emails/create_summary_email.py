@@ -2,7 +2,7 @@ import json
 import os
 import sys
 sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
-import mongo_script
+import src.mongo_script as ms
 import logging
 import datetime
 
@@ -11,7 +11,7 @@ def create_email():
     date_today = str(datetime.date.today())
     # date_today = '2024-10-29'
     try:
-        json_data = mongo_script.retrieve_from_summary_db(date_today)
+        json_data = ms.retrieve_from_summary_db(date_today)
     except Exception as e:
         logging.info("Data is not scrapped properly.")
         logging.info(f"Error: {e}")

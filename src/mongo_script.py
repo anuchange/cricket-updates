@@ -71,11 +71,13 @@ def insert_user(email):
     collection = user_db['subscribed_users']
 
     # Check if the email already exists
-    existing_user = collection.find_one({'email': email})
-    if existing_user:
-        logging.info("Email already exists.")
-        return False  
-    
+    try: 
+        existing_user = collection.find_one({'email': email})
+        if existing_user:
+            logging.info("Email already exists.")
+            return False  
+    except:
+        logging.info('User not exist, continuing to register user!')
     # Insert new user with subscribed date
     user_data = {
         'email': email,

@@ -1,0 +1,41 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - MONGODB_URI=mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.tbqu5.mongodb.net/
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_EMAIL_KEY=${SENDER_EMAIL_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - PORT=5000
+      # Add these environment variables for MongoDB
+      - TZ=UTC
+      - PYTHONUNBUFFERED=1
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    networks:
+      - app-network
+    # Add DNS configuration
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    extra_hosts:
+      - "cluster0.tbqu5.mongodb.net:0.0.0.0"
+
+networks:
+  app-network:
+    driver: bridge
+    # Add DNS configuration to the network
+    driver_opts:
+      com.docker.network.driver.mtu: 1450

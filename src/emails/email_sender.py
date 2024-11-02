@@ -1,23 +1,26 @@
 import smtplib
 import os
 import sys
+from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 sys.path.append("\\".join(os.getcwd().split("\\")[:-2]))
 from dotenv import load_dotenv
-from create_summary_email import create_email
+from src.emails.create_summary_email import create_email
 import logging
 load_dotenv()
 
 # Email configuration
 sender_email = os.environ['SENDER_EMAIL']
 sender_email_key = os.environ['SENDER_EMAIL_KEY']
+current_dir = Path.cwd()
 
 
 def new_user_send_email(receiver_email):
 
     file_name = 'welcome.html'
-    email_dir = "\\".join(os.getcwd().split("\\")[:-1])+'\\data\\'+file_name
+    # email_dir = "\\".join(os.getcwd().split("\\")[:-1])+'\\data\\'+file_name
+    email_dir = current_dir / 'data' / file_name
 
     # Read HTML content from file with UTF-8 encoding
     with open(email_dir, 'r', encoding='utf-8') as file:

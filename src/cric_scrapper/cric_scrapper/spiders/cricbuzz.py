@@ -3,7 +3,9 @@ import os
 import json
 import sys
 sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
-from mongo_script import insert_to_db
+os.chdir('../../')
+print(os.getcwd())
+from src.mongo_script import insert_to_db
 
 
 class CricbuzzSpider(scrapy.Spider):

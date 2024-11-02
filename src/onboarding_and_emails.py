@@ -1,8 +1,8 @@
 import os
 import sys
 sys.path.append(os.getcwd()+"\\emails")
-import email_sender as es
-import mongo_script as ms
+import src.emails.email_sender as es
+import src.mongo_script as ms
 import logging
 
 def onboarding(user_email):
