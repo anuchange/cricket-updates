@@ -4,7 +4,7 @@ import json
 import sys
 sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
 os.chdir('../../')
-print(os.getcwd())
+import logging
 from src.mongo_script import insert_to_db
 
 
@@ -68,6 +68,17 @@ class CricbuzzSpider(scrapy.Spider):
         article_text_list = response.css('p.cb-nws-para::text').getall()
         article_text = "\n".join(article_text_list)
 
+        try:
+            # Selecting all text within the table with class 'cb-nws-tbl'
+            texts = response.xpath('//table[@class="cb-nws-tbl"]//text()').getall()
+            
+            # merging all of them in the space separated string so that llm have some context atleast
+            cleaned_texts = [text.strip() for text in texts if text.strip()]  
+            final_output = ' '.join(cleaned_texts)
+            article_text += final_output
+        except:
+            logging.info("No table found!")
+
         # Adding in the complete latest news dictionary
         latest_news_title = response.meta.get('title_name')
         self.latest_news_complete_data[latest_news_title] = article_text
@@ -111,11 +122,24 @@ class CricbuzzSpider(scrapy.Spider):
             }
 
             if None in match_scores.values():
-                if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is not None:
-                    match_scores['Player of the Series'] = "Series is not completed yet."
+                if match_scores['Match Status'] is None:
+                    try:
+                        score_div = response.css('div.cb-col.cb-col-67.cb-scrs-wrp')
 
-                if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is None and match_scores['Match Status'] is None:
-                    match_scores['Match Status'] = "Match is not started yet."
+                        # Loop through each div found and extract text
+                        for div in score_div:
+                            # Get all text within that div
+                            text_content = div.xpath('.//text()').getall()
+                            # Clean up the text by stripping whitespace and joining
+                            cleaned_text = ' '.join([text.strip() for text in text_content if text.strip()])
+                        
+                        match_scores['Match Status']=cleaned_text
+                    except:
+                        if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is not None:
+                            match_scores['Player of the Series'] = "Series is not completed yet."
+
+                        if match_scores['Player of the Series'] is None and match_scores['Player of the Match'] is None and match_scores['Match Status'] is None:
+                            match_scores['Match Status'] = "Match is not started yet."
         
 
             # Complete match details
