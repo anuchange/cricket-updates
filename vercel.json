@@ -3,11 +3,7 @@
     "builds": [
         {
             "src": "src/vercel_deploy.py",
-            "use": "@vercel/python",
-            "config": {
-                "runtime": "python3.11",
-                "maxLambdaSize": "15mb"
-            }
+            "use": "@vercel/python"
         }
     ],
     "routes": [
