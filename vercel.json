@@ -3,7 +3,8 @@
     "builds": [
         {
             "src": "src/vercel_deploy.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": { "runtime": "python3.11" }
         }
     ],
     "routes": [
@@ -11,5 +12,8 @@
             "src": "/(.*)",
             "dest": "src/vercel_deploy.py"
         }
-    ]
+    ],
+    "env": {
+        "PYTHONPATH": "."
+    }
 }
