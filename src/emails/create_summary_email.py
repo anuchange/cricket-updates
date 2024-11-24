@@ -174,7 +174,7 @@ def generate_email_html(news_data, match_data):
             
             <div class="footer">
                 <p>Stay tuned for more cricket updates tomorrow!</p>
-                <p>&copy; {current_year} Cricket Daily Digest</p>
+                <p>&copy; {current_year} Pavilion Post </p>
             </div>
         </div>
     </body>
@@ -186,7 +186,7 @@ def generate_email_html(news_data, match_data):
 def create_email():
 
     date_today = str(date.today())
-    date_today = '2024-11-23'
+    # date_today = '2024-11-23'
     try:
         json_data = ms.retrieve_from_summary_db(date_today)
     except Exception as e:
