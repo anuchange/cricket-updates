@@ -2,7 +2,13 @@
 
 An automated cricket newsletter service that scrapes live cricket updates from Cricbuzz and delivers curated content directly to your inbox. Perfect for cricket enthusiasts who want to stay updated without visiting multiple websites.
 
+<div align="center">
+
 ![Cricket Daily Digest Demo](demo.gif)
+</div>
+
+## Visit Us On
+-   **Vercel App:** [The Pavilion Post](https://pavilionpost.vercel.app/)
 
 ## 🌟 Features
 
