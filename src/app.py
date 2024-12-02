@@ -47,7 +47,7 @@ def run_scrapy():
 scheduler = BackgroundScheduler()
 
 try:
-    hr = 17
+    hr = 15
     mnt = 0
     # Scheduling the scrapy job to run every day
     scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
@@ -69,7 +69,39 @@ except:
 # Start the scheduler
 scheduler.start()
 
+# Vercel routes
+@app.route('/api/cron-scrape', methods=['GET'])
+def run_scraping():
+    try:
+        os.chdir('./src/cric_scrapper')
+        subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
+        return jsonify({"status": "success", "message": "Scraping completed"}), 200
+    except Exception as e:
+        logging.error(f"Scraping error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cron-llm', methods=['GET'])
+def run_llm():
+    try:
+        call_init = llm_call()
+        call_init.cricket_content()
+        return jsonify({"status": "success", "message": "LLM processing completed"}), 200
+    except Exception as e:
+        logging.error(f"LLM error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cron-email', methods=['GET'])
+def run_emails():
+    try:
+        send_emails()
+        return jsonify({"status": "success", "message": "Emails sent"}), 200
+    except Exception as e:
+        logging.error(f"Email error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     # Use PORT environment variable or default to 5000 for local development
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False) 
+
+

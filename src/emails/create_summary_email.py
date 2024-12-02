@@ -174,7 +174,7 @@ def generate_email_html(news_data, match_data):
             
             <div class="footer">
                 <p>Stay tuned for more cricket updates tomorrow!</p>
-                <p>&copy; {current_year} Pavilion Post </p>
+                <p>&copy; {current_year} The Pavilion Post </p>
             </div>
         </div>
     </body>
