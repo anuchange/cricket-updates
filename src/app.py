@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
 import subprocess
+import time
 from src.onboarding_and_emails import send_emails, onboarding
 from src.llm_call import llm_call
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -70,33 +71,32 @@ except:
 scheduler.start()
 
 # Vercel routes
-@app.route('/api/cron-scrape', methods=['GET'])
-def run_scraping():
+@app.route('/api/cron-jobs', methods=['GET'])
+def run_all_jobs():
     try:
+        # Run scraping
         os.chdir('./src/cric_scrapper')
         subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
-        return jsonify({"status": "success", "message": "Scraping completed"}), 200
-    except Exception as e:
-        logging.error(f"Scraping error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/cron-llm', methods=['GET'])
-def run_llm():
-    try:
+        logging.info("Scraping completed")
+        
+        # Wait 2 minutes
+        time.sleep(120)
+        
+        # Run LLM processing
         call_init = llm_call()
         call_init.cricket_content()
-        return jsonify({"status": "success", "message": "LLM processing completed"}), 200
-    except Exception as e:
-        logging.error(f"LLM error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/cron-email', methods=['GET'])
-def run_emails():
-    try:
+        logging.info("LLM processing completed")
+        
+        # Wait 5 minutes
+        time.sleep(300)
+        
+        # Send emails
         send_emails()
-        return jsonify({"status": "success", "message": "Emails sent"}), 200
+        logging.info("Emails sent")
+        
+        return jsonify({"status": "success", "message": "All jobs completed"}), 200
     except Exception as e:
-        logging.error(f"Email error: {e}")
+        logging.error(f"Job error: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

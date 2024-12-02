@@ -14,16 +14,8 @@
     ],
     "crons": [
         {
-            "path": "/api/cron-scrape",
+            "path": "/api/cron-jobs",
             "schedule": "0 17 * * *"
-        },
-        {
-            "path": "/api/cron-llm",
-            "schedule": "2 17 * * *"
-        },
-        {
-            "path": "/api/cron-email",
-            "schedule": "7 17 * * *"
         }
     ]
 }
