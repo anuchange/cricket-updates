@@ -19,8 +19,8 @@
         }
     ],
     "functions": {
-        "src/vercel_deploy.py": {
-            "maxDuration": 60
+        "api/src/vercel_deploy.py": {
+            "maxDuration": 300
         }
     }
 }
