@@ -76,11 +76,41 @@ def run_all_jobs():
     try:
         # Run scraping
         logging.info("Scrapy starting")
-        logging.info(os.getcwd())
+        # logging.info(os.getcwd())
+        # os.chdir('./src/cric_scrapper')
+        # logging.info(os.getcwd())
+        # logging.info("_________________")
+        # logging.info(os.listdir())
+
+        # Print initial working directory
+        print(f"Initial directory: {os.getcwd()}")
+        
+        # Change to the directory with scrapy.cfg
         os.chdir('./src/cric_scrapper')
-        logging.info(os.getcwd())
-        logging.info("_________________")
-        logging.info(os.listdir())
+        print(f"Changed to directory: {os.getcwd()}")
+        
+        # List all files to verify location
+        print("Files in current directory:", os.listdir())
+        
+        # Print PATH environment variable
+        print("PATH:", os.environ.get('PATH'))
+        
+        # Try to find scrapy executable
+        which_scrapy = subprocess.run(['which', 'scrapy'], 
+                                    capture_output=True, 
+                                    text=True)
+        print("Scrapy location:", which_scrapy.stdout)
+        
+        # Try running scrapy version
+        version = subprocess.run(['scrapy', 'version'], 
+                               capture_output=True, 
+                               text=True)
+        print("Scrapy version output:", version.stdout)
+        print("Scrapy version error:", version.stderr)
+
+
+
+
         subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scraping completed")
         
