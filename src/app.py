@@ -104,18 +104,29 @@ def run_all_jobs():
         print("Spider output:", result.stdout)
         print("Spider error:", result.stderr)
 
-        # Print contents of root directory
-        print("Root directory contents:", os.listdir('/var/task'))
+        # Add root directory to Python path
+        root_path = '/var/task'
+        if root_path not in sys.path:
+            sys.path.insert(0, root_path)
         
-        # Print contents of site-packages
-        print("\nSite packages contents:", 
-              os.listdir('/var/lang/lib/python3.12/site-packages'))
+        print("Updated Python path:", sys.path)
         
-        # Rest of your code...
-        print(f"\nInitial directory: {os.getcwd()}")
+        # Try importing scrapy to verify
+        try:
+            import scrapy
+            print("Successfully imported Scrapy version:", scrapy.__version__)
+        except ImportError as e:
+            print("Import error:", str(e))
+        
+        # Change directory and run spider
         os.chdir('/var/task/src/cric_scrapper')
-        print(f"Changed to directory: {os.getcwd()}")
-        print("Files in current directory:", os.listdir())
+        print(f"Current directory: {os.getcwd()}")
+        
+        result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'your_spider_name'], 
+                              capture_output=True,
+                              text=True)
+        print("Spider output:", result.stdout)
+        print("Spider error:", result.stderr)
 
 
         # subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
