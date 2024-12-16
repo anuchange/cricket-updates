@@ -75,7 +75,11 @@ scheduler.start()
 def run_all_jobs():
     try:
         # Run scraping
+        logging.info("Scrapy starting")
+        logging.info(os.getcwd())
         os.chdir('./src/cric_scrapper')
+        logging.info(os.getcwd())
+        logging.info("_________________")
         subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scraping completed")
         
