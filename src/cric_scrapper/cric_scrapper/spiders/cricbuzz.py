@@ -5,7 +5,7 @@ import sys
 sys.path.append("\\".join(os.getcwd().split("\\")[:-1]))
 os.chdir('../../')
 import logging
-# from src.mongo_script import insert_to_db
+from src.mongo_script import insert_to_db
 
 
 class CricbuzzSpider(scrapy.Spider):
@@ -185,5 +185,5 @@ class CricbuzzSpider(scrapy.Spider):
         #     json.dump(data, json_file, indent=4) 
 
         # insert into db
-        # inserted_id = insert_to_db(data)
-        # self.log(f"Inserted into db with id:{inserted_id}")
+        inserted_id = insert_to_db(data)
+        self.log(f"Inserted into db with id:{inserted_id}")
