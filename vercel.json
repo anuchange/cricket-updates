@@ -5,7 +5,7 @@
             "src": "src/vercel_deploy.py",
             "use": "@vercel/python",
             "config": {
-                "maxDuration": 300
+                "maxDuration": 50
             }
         }
     ],
