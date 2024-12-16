@@ -7,6 +7,7 @@ from src.llm_call import llm_call
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
+import sys
 
 app = Flask(__name__, static_folder='static')
 
@@ -86,27 +87,22 @@ def run_all_jobs():
         print(f"Initial directory: {os.getcwd()}")
         
         # Change to the directory with scrapy.cfg
-        os.chdir('./src/cric_scrapper')
+        os.chdir('/var/task/src/cric_scrapper')
         print(f"Changed to directory: {os.getcwd()}")
         
         # List all files to verify location
         print("Files in current directory:", os.listdir())
         
-        # Print PATH environment variable
-        print("PATH:", os.environ.get('PATH'))
+        # Print Python executable and path
+        print("Python executable:", sys.executable)
+        print("Python path:", sys.path)
         
-        # Try to find scrapy executable
-        which_scrapy = subprocess.run(['which', 'scrapy'], 
-                                    capture_output=True, 
-                                    text=True)
-        print("Scrapy location:", which_scrapy.stdout)
-        
-        # Try running scrapy version
-        version = subprocess.run(['scrapy', 'version'], 
-                               capture_output=True, 
-                               text=True)
-        print("Scrapy version output:", version.stdout)
-        print("Scrapy version error:", version.stderr)
+        # Try using python -m scrapy instead of direct scrapy command
+        result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'cricbuzz'], 
+                              capture_output=True,
+                              text=True)
+        print("Spider output:", result.stdout)
+        print("Spider error:", result.stderr)
 
 
 
