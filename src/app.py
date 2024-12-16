@@ -111,16 +111,37 @@ def run_all_jobs():
         
         print("Updated Python path:", sys.path)
         
-        # Try importing scrapy to verify
-        try:
-            import scrapy
-            print("Successfully imported Scrapy version:", scrapy.__version__)
-        except ImportError as e:
-            print("Import error:", str(e))
-        
         # Change directory and run spider
         os.chdir('/var/task/src/cric_scrapper')
         print(f"Current directory: {os.getcwd()}")
+
+        # Import and run spider directly
+        from scrapy.crawler import CrawlerProcess
+        from scrapy.utils.project import get_project_settings
+        
+        # Import your spider (adjust the import path as needed)
+        from src.cric_scrapper.cric_scrapper.spiders.cricbuzz import CricbuzzSpider
+        
+        try:
+            # Get project settings
+            settings = get_project_settings()
+            
+            # Create crawler process
+            process = CrawlerProcess(settings)
+            
+            # Add spider to crawler
+            process.crawl(CricbuzzSpider)
+            
+            # Run the spider
+            process.start()
+            
+            print("Spider completed successfully")
+            
+        except Exception as e:
+            print("Spider error:", str(e))
+            import traceback
+            traceback.print_exc()
+
         
         result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'your_spider_name'], 
                               capture_output=True,
