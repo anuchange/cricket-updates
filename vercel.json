@@ -3,7 +3,10 @@
     "builds": [
         {
             "src": "src/vercel_deploy.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": {
+                "maxDuration": 300
+            }
         }
     ],
     "routes": [
@@ -12,11 +15,6 @@
             "dest": "src/vercel_deploy.py"
         }
     ],
-    "functions": {
-        "/api/cron-jobs": {
-            "maxDuration": 60
-        }
-    },
     "crons": [
         {
             "path": "/api/cron-jobs",
