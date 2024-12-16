@@ -17,5 +17,10 @@
             "path": "/api/cron-jobs",
             "schedule": "0 16 * * *"
         }
-    ]
+    ],
+    "functions": {
+        "src/vercel_deploy.py": {
+            "maxDuration": 300
+        }
+    }
 }

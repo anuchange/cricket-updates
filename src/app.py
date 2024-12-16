@@ -154,7 +154,7 @@ def run_all_jobs():
         logging.info("Scraping completed")
         
         # Wait  minutes
-        time.sleep(20)
+        # time.sleep(20)
         
         # Run LLM processing
         call_init = llm_call()
@@ -162,7 +162,7 @@ def run_all_jobs():
         logging.info("LLM processing completed")
         
         # Wait 5 minutes
-        time.sleep(60)
+        # time.sleep(60)
         
         # Send emails
         send_emails()
