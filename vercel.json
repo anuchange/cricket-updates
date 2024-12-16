@@ -12,15 +12,15 @@
             "dest": "src/vercel_deploy.py"
         }
     ],
+    "functions": {
+        "/api/cron-jobs": {
+            "maxDuration": 60
+        }
+    },
     "crons": [
         {
             "path": "/api/cron-jobs",
             "schedule": "0 16 * * *"
         }
-    ],
-    "functions": {
-        "api/src/vercel_deploy.py": {
-            "maxDuration": 60
-        }
-    }
+    ]
 }
