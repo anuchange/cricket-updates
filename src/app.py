@@ -153,8 +153,8 @@ def run_all_jobs():
         # subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scraping completed")
         
-        # Wait 2 minutes
-        time.sleep(120)
+        # Wait  minutes
+        time.sleep(20)
         
         # Run LLM processing
         call_init = llm_call()
@@ -162,7 +162,7 @@ def run_all_jobs():
         logging.info("LLM processing completed")
         
         # Wait 5 minutes
-        time.sleep(300)
+        time.sleep(60)
         
         # Send emails
         send_emails()
