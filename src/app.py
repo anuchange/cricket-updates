@@ -80,6 +80,7 @@ def run_all_jobs():
         os.chdir('./src/cric_scrapper')
         logging.info(os.getcwd())
         logging.info("_________________")
+        logging.info(os.listdir())
         subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scraping completed")
         
