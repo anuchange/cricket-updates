@@ -1,10 +1,14 @@
 {
     "version": 2,
-    "functions": {
-        "src/**/*": {
-            "maxDuration": 60
+    "builds": [
+        {
+            "src": "src/vercel_deploy.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxDuration": 60
+            }
         }
-    },
+    ],
     "routes": [
         {
             "src": "/(.*)",
