@@ -87,7 +87,7 @@ def run_all_jobs():
         print(f"Initial directory: {os.getcwd()}")
         
         # Change to the directory with scrapy.cfg
-        os.chdir('/var/task/src/cric_scrapper')
+        os.chdir('./src/cric_scrapper')
         print(f"Changed to directory: {os.getcwd()}")
         
         # List all files to verify location
@@ -104,10 +104,21 @@ def run_all_jobs():
         print("Spider output:", result.stdout)
         print("Spider error:", result.stderr)
 
+        # Print contents of root directory
+        print("Root directory contents:", os.listdir('/var/task'))
+        
+        # Print contents of site-packages
+        print("\nSite packages contents:", 
+              os.listdir('/var/lang/lib/python3.12/site-packages'))
+        
+        # Rest of your code...
+        print(f"\nInitial directory: {os.getcwd()}")
+        os.chdir('/var/task/src/cric_scrapper')
+        print(f"Changed to directory: {os.getcwd()}")
+        print("Files in current directory:", os.listdir())
 
 
-
-        subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
+        # subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
         logging.info("Scraping completed")
         
         # Wait 2 minutes
