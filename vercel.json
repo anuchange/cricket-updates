@@ -20,7 +20,7 @@
     ],
     "functions": {
         "src/vercel_deploy.py": {
-            "maxDuration": 300
+            "maxDuration": 60
         }
     }
 }
