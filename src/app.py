@@ -9,6 +9,9 @@ from apscheduler.triggers.cron import CronTrigger
 import logging
 import sys
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__, static_folder='static')
 
@@ -73,14 +76,33 @@ except:
 scheduler.start()
 
 # Vercel routes
+def ping_render():
+    # Configure shorter timeouts and retries
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=1,
+        backoff_factor=1,
+        status_forcelist=[500, 502, 503, 504]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    
+    try:
+        # Set a very short timeout
+        response = session.get("https://pavilion-post.onrender.com/", timeout=5)
+        return True
+    except Exception as e:
+        print(f"Error pinging Render: {str(e)}")
+        return False
+
 @app.route("/api/cron-jobs")
 def trigger_render():
-    try:
-        # This will wake up your Render container
-        response = requests.get("https://pavilion-post.onrender.com/")
-        return {"status": "success", "message": "Render container triggered"}, 200
-    except Exception as e:
-        return {"status": "error", "message": str(e)}, 500
+    # Use ThreadPoolExecutor to run the request in background
+    with ThreadPoolExecutor() as executor:
+        future = executor.submit(ping_render)
+        # Don't wait for the response
+        return {"status": "success", "message": "Render container trigger initiated"}, 200
 
 # can't run this because cron time is limited to 60 seconds
 # def run_all_jobs():
