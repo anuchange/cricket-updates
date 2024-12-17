@@ -53,8 +53,8 @@ def run_scrapy():
 scheduler = BackgroundScheduler()
 
 try:
-    hr = 15
-    mnt = 0
+    hr = 10
+    mnt = 5
     # Scheduling the scrapy job to run every day
     scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
     scheduler.add_job(run_scrapy, scrapy_trigger)

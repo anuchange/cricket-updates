@@ -45,7 +45,7 @@ def insert_to_summary_db(day_updates):
     existing_collections = summary_db.list_collection_names()
     if existing_collections:
         for collection_name in existing_collections:
-            db.drop_collection(collection_name)
+            summary_db.drop_collection(collection_name)
             logging.info(f"Deleted existing collection: {collection_name}")
     else:
         logging.info("No existing collections to delete.")
