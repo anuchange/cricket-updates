@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
 import sys
+import requests
 
 app = Flask(__name__, static_folder='static')
 
@@ -72,106 +73,115 @@ except:
 scheduler.start()
 
 # Vercel routes
-@app.route('/api/cron-jobs', methods=['GET'])
-def run_all_jobs():
+@app.route("/api/cron-jobs")
+def trigger_render():
     try:
-        # Run scraping
-        logging.info("Scrapy starting")
-        # logging.info(os.getcwd())
-        # os.chdir('./src/cric_scrapper')
-        # logging.info(os.getcwd())
-        # logging.info("_________________")
-        # logging.info(os.listdir())
-
-        # Print initial working directory
-        print(f"Initial directory: {os.getcwd()}")
-        
-        # Change to the directory with scrapy.cfg
-        os.chdir('./src/cric_scrapper')
-        print(f"Changed to directory: {os.getcwd()}")
-        
-        # List all files to verify location
-        print("Files in current directory:", os.listdir())
-        
-        # Print Python executable and path
-        print("Python executable:", sys.executable)
-        print("Python path:", sys.path)
-        
-        # Try using python -m scrapy instead of direct scrapy command
-        result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'cricbuzz'], 
-                              capture_output=True,
-                              text=True)
-        print("Spider output:", result.stdout)
-        print("Spider error:", result.stderr)
-
-        # Add root directory to Python path
-        root_path = '/var/task'
-        if root_path not in sys.path:
-            sys.path.insert(0, root_path)
-        
-        print("Updated Python path:", sys.path)
-        
-        # Change directory and run spider
-        os.chdir('/var/task/src/cric_scrapper')
-        print(f"Current directory: {os.getcwd()}")
-
-        # Import and run spider directly
-        from scrapy.crawler import CrawlerProcess
-        from scrapy.utils.project import get_project_settings
-        
-        # Import your spider (adjust the import path as needed)
-        from src.cric_scrapper.cric_scrapper.spiders.cricbuzz import CricbuzzSpider
-        
-        try:
-            # Get project settings
-            settings = get_project_settings()
-            
-            # Create crawler process
-            process = CrawlerProcess(settings)
-            
-            # Add spider to crawler
-            process.crawl(CricbuzzSpider)
-            
-            # Run the spider
-            process.start()
-            
-            print("Spider completed successfully")
-            
-        except Exception as e:
-            print("Spider error:", str(e))
-            import traceback
-            traceback.print_exc()
-
-        
-        result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'your_spider_name'], 
-                              capture_output=True,
-                              text=True)
-        print("Spider output:", result.stdout)
-        print("Spider error:", result.stderr)
-
-
-        # subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
-        logging.info("Scraping completed")
-        
-        # Wait  minutes
-        # time.sleep(20)
-        
-        # Run LLM processing
-        call_init = llm_call()
-        call_init.cricket_content()
-        logging.info("LLM processing completed")
-        
-        # Wait 5 minutes
-        # time.sleep(60)
-        
-        # Send emails
-        send_emails()
-        logging.info("Emails sent")
-        
-        return jsonify({"status": "success", "message": "All jobs completed"}), 200
+        # This will wake up your Render container
+        response = requests.get("https://pavilion-post.onrender.com/")
+        return {"status": "success", "message": "Render container triggered"}, 200
     except Exception as e:
-        logging.error(f"Job error: {e}")
-        return jsonify({"error": str(e)}), 500
+        return {"status": "error", "message": str(e)}, 500
+
+# can't run this because cron time is limited to 60 seconds
+# def run_all_jobs():
+#     try:
+#         # Run scraping
+#         logging.info("Scrapy starting")
+#         # logging.info(os.getcwd())
+#         # os.chdir('./src/cric_scrapper')
+#         # logging.info(os.getcwd())
+#         # logging.info("_________________")
+#         # logging.info(os.listdir())
+
+#         # Print initial working directory
+#         print(f"Initial directory: {os.getcwd()}")
+        
+#         # Change to the directory with scrapy.cfg
+#         os.chdir('./src/cric_scrapper')
+#         print(f"Changed to directory: {os.getcwd()}")
+        
+#         # List all files to verify location
+#         print("Files in current directory:", os.listdir())
+        
+#         # Print Python executable and path
+#         print("Python executable:", sys.executable)
+#         print("Python path:", sys.path)
+        
+#         # Try using python -m scrapy instead of direct scrapy command
+#         result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'cricbuzz'], 
+#                               capture_output=True,
+#                               text=True)
+#         print("Spider output:", result.stdout)
+#         print("Spider error:", result.stderr)
+
+#         # Add root directory to Python path
+#         root_path = '/var/task'
+#         if root_path not in sys.path:
+#             sys.path.insert(0, root_path)
+        
+#         print("Updated Python path:", sys.path)
+        
+#         # Change directory and run spider
+#         os.chdir('/var/task/src/cric_scrapper')
+#         print(f"Current directory: {os.getcwd()}")
+
+#         # Import and run spider directly
+#         from scrapy.crawler import CrawlerProcess
+#         from scrapy.utils.project import get_project_settings
+        
+#         # Import your spider (adjust the import path as needed)
+#         from src.cric_scrapper.cric_scrapper.spiders.cricbuzz import CricbuzzSpider
+        
+#         try:
+#             # Get project settings
+#             settings = get_project_settings()
+            
+#             # Create crawler process
+#             process = CrawlerProcess(settings)
+            
+#             # Add spider to crawler
+#             process.crawl(CricbuzzSpider)
+            
+#             # Run the spider
+#             process.start()
+            
+#             print("Spider completed successfully")
+            
+#         except Exception as e:
+#             print("Spider error:", str(e))
+#             import traceback
+#             traceback.print_exc()
+
+        
+#         result = subprocess.run([sys.executable, '-m', 'scrapy', 'crawl', 'your_spider_name'], 
+#                               capture_output=True,
+#                               text=True)
+#         print("Spider output:", result.stdout)
+#         print("Spider error:", result.stderr)
+
+
+#         # subprocess.run(['scrapy', 'crawl', 'cricbuzz'], check=True)
+#         logging.info("Scraping completed")
+        
+#         # Wait  minutes
+#         # time.sleep(20)
+        
+#         # Run LLM processing
+#         call_init = llm_call()
+#         call_init.cricket_content()
+#         logging.info("LLM processing completed")
+        
+#         # Wait 5 minutes
+#         # time.sleep(60)
+        
+#         # Send emails
+#         send_emails()
+#         logging.info("Emails sent")
+        
+#         return jsonify({"status": "success", "message": "All jobs completed"}), 200
+#     except Exception as e:
+#         logging.error(f"Job error: {e}")
+#         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # Use PORT environment variable or default to 5000 for local development
