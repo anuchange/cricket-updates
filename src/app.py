@@ -14,9 +14,36 @@ from urllib3.util.retry import Retry
 from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__, static_folder='static')
+# Initialize the scheduler
+scheduler = BackgroundScheduler()
 
 @app.route('/')
 def home():
+
+    # Check for the secret token
+    cron_secret = request.headers.get('X-Cron-Secret')
+    if cron_secret and cron_secret == os.environ.get('CRON_JOB_KEY'):
+        # Only start the scheduler if it's the cron job
+        try:
+            hr = time.gmtime().tm_hour
+            mnt = time.gmtime().tm_min
+            # Scheduling the scrapy job to run every day
+            scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
+            scheduler.add_job(run_scrapy, scrapy_trigger)
+
+            # Scheduling the llm call
+            call_init = llm_call()
+            email_trigger = CronTrigger(hour=hr, minute=mnt+2)
+            scheduler.add_job(call_init.cricket_content, email_trigger)    
+
+            # Schedule the send_emails job to run after the Scrapy job
+            email_trigger = CronTrigger(hour=hr, minute=mnt+7)
+            scheduler.add_job(send_emails, email_trigger)
+
+        except:
+
+            logging.info("We regret to inform that we can't send updates mail today!")
+    
     return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/sign-in')
@@ -49,35 +76,39 @@ def run_scrapy():
     except subprocess.CalledProcessError as e:
         logging.info(f"Error running Scrapy: {e}")
 
-# Initialize the scheduler
-scheduler = BackgroundScheduler()
 
-try:
-    hr = 10
-    mnt = 5
-    # Scheduling the scrapy job to run every day
-    scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
-    scheduler.add_job(run_scrapy, scrapy_trigger)
 
-    # Scheduling the llm call
-    call_init = llm_call()
-    email_trigger = CronTrigger(hour=hr, minute=mnt+2)
-    scheduler.add_job(call_init.cricket_content, email_trigger)    
 
-    # Schedule the send_emails job to run after the Scrapy job
-    email_trigger = CronTrigger(hour=hr, minute=mnt+7)
-    scheduler.add_job(send_emails, email_trigger)
+# # Vercel routes
+# def ping_render():
+#     # Configure shorter timeouts and retries
+#     session = requests.Session()
+#     retry_strategy = Retry(
+#         total=1,
+#         backoff_factor=1,
+#         status_forcelist=[500, 502, 503, 504]
+#     )
+#     adapter = HTTPAdapter(max_retries=retry_strategy)
+#     session.mount("http://", adapter)
+#     session.mount("https://", adapter)
+    
+#     try:
+#         # Set a very short timeout
+#         response = session.get("https://pavilion-post.onrender.com/", timeout=5)
+#         return True
+#     except Exception as e:
+#         print(f"Error pinging Render: {str(e)}")
+#         return False
 
-except:
-
-    logging.info("We regret to inform that we can't send updates mail today!")
-
-# Start the scheduler
-scheduler.start()
-
-# Vercel routes
+# @app.route("/api/cron-jobs")
+# def trigger_render():
+#     # Use ThreadPoolExecutor to run the request in background
+#     with ThreadPoolExecutor() as executor:
+#         future = executor.submit(ping_render)
+#         # Don't wait for the response
+#         return {"status": "success", "message": "Render container trigger initiated"}, 200
+    
 def ping_render():
-    # Configure shorter timeouts and retries
     session = requests.Session()
     retry_strategy = Retry(
         total=1,
@@ -89,8 +120,9 @@ def ping_render():
     session.mount("https://", adapter)
     
     try:
-        # Set a very short timeout
-        response = session.get("https://pavilion-post.onrender.com/", timeout=5)
+        # Add a secret token in headers
+        headers = {'X-Cron-Secret': os.environ.get('CRON_JOB_KEY')}
+        response = session.get("https://pavilion-post.onrender.com/", headers=headers, timeout=5)
         return True
     except Exception as e:
         print(f"Error pinging Render: {str(e)}")
@@ -98,11 +130,8 @@ def ping_render():
 
 @app.route("/api/cron-jobs")
 def trigger_render():
-    # Use ThreadPoolExecutor to run the request in background
-    with ThreadPoolExecutor() as executor:
-        future = executor.submit(ping_render)
-        # Don't wait for the response
-        return {"status": "success", "message": "Render container trigger initiated"}, 200
+    ping_render()
+    return {"status": "success", "message": "Render container trigger initiated"}, 200
 
 # can't run this because cron time is limited to 60 seconds
 # def run_all_jobs():
@@ -207,6 +236,8 @@ def trigger_render():
 
 if __name__ == '__main__':
     # Use PORT environment variable or default to 5000 for local development
+    # Start the scheduler
+    scheduler.start()
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False) 
 
