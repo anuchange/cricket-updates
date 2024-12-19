@@ -52,4 +52,6 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src.wsgi:app"]
+# If using Dockerfile
+ENV GUNICORN_CMD_ARGS="--timeout=900 --workers=1 --threads=1 --worker-class=gthread --log-level=debug --bind=0.0.0.0:5000"
+CMD ["gunicorn", "src.wsgi:app"]
