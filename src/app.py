@@ -20,28 +20,48 @@ scheduler = BackgroundScheduler()
 @app.route('/')
 def home():
 
+    logging.info("Hit Home")
     # Check for the secret token
     cron_secret = request.headers.get('X-Cron-Secret')
     if cron_secret and cron_secret == os.environ.get('CRON_JOB_KEY'):
+        # print("Getting Inside")
         # Only start the scheduler if it's the cron job
         try:
-            hr = time.gmtime().tm_hour
-            mnt = time.gmtime().tm_min
-            # Scheduling the scrapy job to run every day
-            scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
-            scheduler.add_job(run_scrapy, scrapy_trigger)
-
-            # Scheduling the llm call
+            # 1. Run scraping
+            logging.info("Starting scraping...")
+            run_scrapy()
+            logging.info("Scraping completed")
+            
+            # 2. Run LLM processing
+            logging.info("Starting LLM processing...")
             call_init = llm_call()
-            email_trigger = CronTrigger(hour=hr, minute=mnt+2)
-            scheduler.add_job(call_init.cricket_content, email_trigger)    
-
-            # Schedule the send_emails job to run after the Scrapy job
-            email_trigger = CronTrigger(hour=hr, minute=mnt+7)
-            scheduler.add_job(send_emails, email_trigger)
+            call_init.cricket_content()
+            logging.info("LLM processing completed")
+            
+            # 3. Send emails
+            logging.info("Starting email sending...")
+            send_emails()
+            logging.info("Emails sent")
+            # print("In try")
+            # hr = time.gmtime().tm_hour
+            # mnt = time.gmtime().tm_min + 1
+            # print(hr, mnt, type(hr), type(mnt))
+            # # Scheduling the scrapy job to run every day
+            # scrapy_trigger = CronTrigger(hour=hr, minute=mnt)
+            # scheduler.add_job(run_scrapy, scrapy_trigger)
+            # print("Scrapy job done")
+            # # Scheduling the llm call
+            # call_init = llm_call()
+            # email_trigger = CronTrigger(hour=hr, minute=mnt+2)
+            # scheduler.add_job(call_init.cricket_content, email_trigger)    
+            # print("LLm call done")
+            # # Schedule the send_emails job to run after the Scrapy job
+            # email_trigger = CronTrigger(hour=hr, minute=mnt+7)
+            # scheduler.add_job(send_emails, email_trigger)
+            # print("Sent emails")
 
         except:
-
+            logging.info("Outside try")
             logging.info("We regret to inform that we can't send updates mail today!")
     
     return send_from_directory(app.static_folder, 'index.html')
